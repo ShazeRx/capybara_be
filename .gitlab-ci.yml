@@ -1,0 +1,24 @@
+image: python:latest
+
+before_script:
+  - python -V
+  - pip install -r requirements.txt
+  - gem install dpl
+
+stages:
+    - develop
+    - production
+
+develop:
+    stage: develop
+    script:
+    - dpl --provider=heroku --app=$HEROKU_APP --api-key=$HEROKU_TOKEN 
+    only:
+        - develop
+
+production:
+    stage: production
+    script:
+    - dpl --provider=heroku --app=$HEROKU_APP --api-key=$HEROKU_TOKEN 
+    only:
+        - master
