@@ -1,3 +1,4 @@
+image: node:latest
 before_script:
   - python -V
   - gem install dpl
@@ -8,7 +9,7 @@ stages:
 
 develop:
     stage: develop
-    image: node:latest
+    image: ruby:latest
     script:
     - dpl --provider=heroku --app=$HEROKU_APP_DEVELOP --api-key=$HEROKU_API_KEY 
     only:
@@ -16,7 +17,7 @@ develop:
 
 production:
     stage: production
-    image: node:latest
+    image: ruby:latest
     script:
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY 
     only:
