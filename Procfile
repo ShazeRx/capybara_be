@@ -1,1 +1,1 @@
-web: gunicorn pigeon_app.wsgi
+web: gunicorn cpbra_be.wsgi
