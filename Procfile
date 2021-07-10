@@ -1,0 +1,1 @@
+web: gunicorn cpbra_be.wsgi
