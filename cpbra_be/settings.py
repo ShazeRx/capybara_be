@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 # DEBUG CONFIG
 DEBUG = os.environ.get('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('BASE_URL', '127.0.0.1')]
 
 # Application definition
 
