@@ -8,8 +8,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cpbra_backend.cpbra.auth.serializers import UserSerializer
-from cpbra_backend.cpbra.auth.utils import MailSenderUtil
+from auth.serializers import UserSerializer
+from auth.utils import MailSenderUtil
 
 
 class LoginView(APIView):

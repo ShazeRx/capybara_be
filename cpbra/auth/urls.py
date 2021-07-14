@@ -5,7 +5,7 @@ from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 
 
-from cpbra_backend.cpbra.auth.views import VerifyEmailView,RegisterView, LoginView
+from auth.views import VerifyEmailView,RegisterView, LoginView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(),name='register'),
