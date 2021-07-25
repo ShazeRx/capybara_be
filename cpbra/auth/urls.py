@@ -4,8 +4,7 @@ Urls for authentication
 from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 
-
-from auth.views import VerifyEmailView,RegisterView, LoginView
+from cpbra.auth.views import LoginView, RegisterView, VerifyEmailView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(),name='register'),
