@@ -1,4 +1,5 @@
 import os
+from smtplib import SMTPException
 
 import jwt
 from django.contrib.auth import authenticate
@@ -43,7 +44,13 @@ class RegisterView(APIView):
         serializer.save()
         user_data = serializer.data
         user_data['tokens'] = serializer.get_token(User.objects.get(id=user_data['id']))
-        MailSenderUtil.send_email(request=request, user_data=user_data)
+        try:
+            MailSenderUtil.send_email(request=request, user_data=user_data)
+        except SMTPException:
+            user = User.objects.get(id=serializer.data['id'])
+            user.delete()
+            return Response(data={'message': 'Internal error occurred, your account has not been created'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data=user_data, status=status.HTTP_201_CREATED)
 
 

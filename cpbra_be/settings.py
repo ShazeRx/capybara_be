@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
+from dotenv import load_dotenv
 
+load_dotenv()
 is_heroku = os.environ.get('IS_HEROKU', False)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -87,6 +90,12 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+# TEST DB CONFIG
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase'
+    }
 if is_heroku:
     DATABASES['default'] = dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 
