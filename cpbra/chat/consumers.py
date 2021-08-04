@@ -1,6 +1,7 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
+from cpbra.chat.serializers import MessageSerializer
 from cpbra.models import Channel, Message
 
 
@@ -31,7 +32,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def fetch_messages(self, event):
         timestamp = event.get('timestamp', None)
-        return self.fetch_messages_from_db(self.room_name, timestamp)
+        messages_list = await self.fetch_messages_from_db(self.room_name, timestamp)
+        serializer = MessageSerializer(messages_list, many=True)
+        await self.send_json(serializer.data)
 
     async def new_message(self, event):
         message_body = event['body']
@@ -94,5 +97,5 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     def fetch_messages_from_db(self, channel_id: int, timestamp: str):
         channel = Channel.objects.get(id=channel_id)
         if timestamp:
-            return Message.objects.get_last_10_messages_from_timestamp(timestamp, channel)
-        return Message.objects.get_last_10_messages_from_now()
+            return list(Message.objects.get_last_10_messages_from_timestamp(timestamp, channel))
+        return list(Message.objects.get_last_10_messages_from_now(channel))
