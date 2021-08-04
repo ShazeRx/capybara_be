@@ -7,14 +7,13 @@ from cpbra.models import Channel
 
 class ChannelSerializer(serializers.ModelSerializer):
     users_list = serializers.SerializerMethodField()
-    users=serializers.PrimaryKeyRelatedField(write_only=True,many=True,queryset=User.objects.all())
+    users = serializers.PrimaryKeyRelatedField(write_only=True, many=True, queryset=User.objects.all())
 
     class Meta:
         model = Channel
         fields = "__all__"
-        read_only_fields = ("id","users_list")
+        read_only_fields = ("id", "users_list")
 
-    def get_users_list(self,channel:Channel):
-        serializer = UserSerializer(channel.users,many=True)
+    def get_users_list(self, channel: Channel):
+        serializer = UserSerializer(channel.users, many=True)
         return serializer.data
-
