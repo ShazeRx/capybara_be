@@ -2,15 +2,9 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class ChannelManager(models.Manager):
-    def get_or_create_channel(self, channel):
-        pass
-
-
 class Channel(models.Model):
     name = models.TextField(max_length=30, null=False, blank=False)
     users = models.ManyToManyField(User, null=False, blank=False)
-    objects = ChannelManager()
 
     def __str__(self):
         return f'ID: {self.id} NAME: {self.name}'

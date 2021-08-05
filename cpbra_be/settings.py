@@ -79,7 +79,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cpbra_be.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -158,6 +157,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 # CONF FOR CHANNELS
 ASGI_APPLICATION = 'cpbra_be.asgi.application'

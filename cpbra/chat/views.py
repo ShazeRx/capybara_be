@@ -2,7 +2,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK, HTTP_204_NO_CONTENT, \
+    HTTP_401_UNAUTHORIZED
 from rest_framework.viewsets import ModelViewSet
 
 from cpbra.chat.serializers import ChannelSerializer
@@ -61,7 +62,7 @@ class ChannelView(ModelViewSet):
             channel.save()
         return Response(status=HTTP_200_OK)
 
-    def remove(self, request: Request, *args, **kwargs):
+    def destroy(self, request: Request, *args, **kwargs):
         """
         Remove channel
         """
@@ -70,4 +71,5 @@ class ChannelView(ModelViewSet):
         channel = Channel.objects.get(id=channel_pk)
         if user in channel.users.all():
             channel.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+            return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_401_UNAUTHORIZED)
