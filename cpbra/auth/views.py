@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from cpbra.auth.serializers import UserSerializer
 from cpbra.auth.utils import MailSenderUtil
+from cpbra_be import settings
 
 
 class LoginView(APIView):
@@ -62,7 +63,7 @@ class VerifyEmailView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         token = request.GET.get('token')
         try:
-            payload = jwt.decode(jwt=token, key=os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+            payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=payload['user_id'])
             if not user.is_active:
                 user.is_active = True
