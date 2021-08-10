@@ -1,3 +1,6 @@
+"""
+Settings for local environment environment
+"""
 import os
 
 from dotenv import load_dotenv
