@@ -11,6 +11,8 @@ develop:
     stage: develop
     image: ruby:latest
     script:
+    - python -m pip install -U pip
+    - python -m pip install --upgrade setuptools
     - dpl --provider=heroku --app=$HEROKU_APP_DEVELOP --api-key=$HEROKU_API_KEY 
     only:
         - develop
@@ -19,6 +21,8 @@ production:
     stage: production
     image: ruby:latest
     script:
+    - python -m pip install -U pip
+    - python -m pip install --upgrade setuptools
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY 
     only:
         - master
