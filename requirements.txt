@@ -56,7 +56,6 @@ timestamp==0.0.1
 toml==0.10.2
 tomli==1.2.1
 Twisted==21.7.0
-twisted-iocpsupport==1.0.1
 txaio==21.2.1
 typing-extensions==3.10.0.0
 uritemplate==3.0.1
