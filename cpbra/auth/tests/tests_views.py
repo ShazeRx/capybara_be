@@ -1,20 +1,23 @@
 import datetime
-import os
-from unittest import mock
+from unittest import TestCase
 
 import jwt
+import pytest
 from django.contrib.auth.models import User
-from django.test import TestCase
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 from cpbra.auth.serializers import UserSerializer
+from cpbra_be import settings
 
 
 class TestLoginView(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
         cls.login_url = reverse("login")
+        cls.client = APIClient()
 
+    @pytest.mark.django_db
     def setUp(self) -> None:
         self.data = {
             "username": "hello",
@@ -23,6 +26,7 @@ class TestLoginView(TestCase):
         }
         User.objects.create_user(**self.data)
 
+    @pytest.mark.django_db
     def test_can_login(self):
         # given
         body = {
@@ -30,10 +34,11 @@ class TestLoginView(TestCase):
             "password": self.data["password"]
         }
         # when
-        response = self.client.post(self.login_url, data=body, content_type="application/json")
+        response = self.client.post(self.login_url, data=body)
         # then
         self.assertEqual(response.status_code, 200)
 
+    @pytest.mark.django_db
     def test_should_throw_403_when_user_not_exist(self):
         # given
         body = {
@@ -41,10 +46,11 @@ class TestLoginView(TestCase):
             "password": "body"
         }
         # when
-        response = self.client.post(self.login_url, data=body, content_type="application/json")
+        response = self.client.post(self.login_url, data=body)
         # then
         self.assertEqual(response.status_code, 403)
 
+    @pytest.mark.django_db
     def test_should_throw_403_when_body_is_empty(self):
         # given
         body = {
@@ -52,16 +58,18 @@ class TestLoginView(TestCase):
             "password": ""
         }
         # when
-        response = self.client.post(self.login_url, data=body, content_type="application/json")
+        response = self.client.post(self.login_url, data=body)
         # then
         self.assertEqual(response.status_code, 403)
 
 
 class TestRegisterView(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
         cls.register_url = reverse('register')
+        cls.client = APIClient()
 
+    @pytest.mark.django_db
     def setUp(self) -> None:
         self.data = {
             "username": "hello",
@@ -69,12 +77,14 @@ class TestRegisterView(TestCase):
             "email": "email@email.com"
         }
 
+    @pytest.mark.django_db
     def test_should_register_successfully(self):
         # when
-        response = self.client.post(self.register_url, data=self.data, content_type="application/json")
+        response = self.client.post(self.register_url, data=self.data)
         # then
         self.assertEqual(response.status_code, 201)
 
+    @pytest.mark.django_db
     def test_should_throw_400_when_empty_username(self):
         # given
         data = {
@@ -83,10 +93,11 @@ class TestRegisterView(TestCase):
             "email": "email@email.com"
         }
         # when
-        response = self.client.post(self.register_url, data=data, content_type="application/json")
+        response = self.client.post(self.register_url, data=data)
         # then
         self.assertEqual(response.status_code, 400)
 
+    @pytest.mark.django_db
     def test_should_throw_400_when_empty_password(self):
         # given
         data = {
@@ -95,10 +106,11 @@ class TestRegisterView(TestCase):
             "email": "email@email.com"
         }
         # when
-        response = self.client.post(self.register_url, data=data, content_type="application/json")
+        response = self.client.post(self.register_url, data=data)
         # then
         self.assertEqual(response.status_code, 400)
 
+    @pytest.mark.django_db
     def test_should_throw_400_when_email_is_not_valid(self):
         # given
         data = {
@@ -107,10 +119,11 @@ class TestRegisterView(TestCase):
             "email": "emailemail.com"
         }
         # when
-        response = self.client.post(self.register_url, data=data, content_type="application/json")
+        response = self.client.post(self.register_url, data=data)
         # then
         self.assertEqual(response.status_code, 400)
 
+    @pytest.mark.django_db
     def test_should_throw_400_when_email_is_empty(self):
         # given
         data = {
@@ -119,10 +132,11 @@ class TestRegisterView(TestCase):
             "email": ""
         }
         # when
-        response = self.client.post(self.register_url, data=data, content_type="application/json")
+        response = self.client.post(self.register_url, data=data)
         # then
         self.assertEqual(response.status_code, 400)
 
+    @pytest.mark.django_db
     def test_should_throw_400_when_email_exist(self):
         # given
         user1_data = {
@@ -136,29 +150,32 @@ class TestRegisterView(TestCase):
             "email": "email@email.com"
         }
         # when
-        self.client.post(self.register_url, data=user1_data, content_type="application/json")
+        self.client.post(self.register_url, data=user1_data)
         # and
-        response = self.client.post(self.register_url, data=user2_data, content_type="application/json")
+        response = self.client.post(self.register_url, data=user2_data)
         # then
         self.assertEqual(response.status_code, 400)
 
+    @pytest.mark.django_db
     def test_should_return_token_set(self):
         # when
-        response = self.client.post(self.register_url, data=self.data, content_type="application/json")
+        response = self.client.post(self.register_url, data=self.data)
         # then
         self.assertEqual(len(response.data['tokens']), 2)
 
+    @pytest.mark.django_db
     def test_should_return_valid_tokens_pairs(self):
         # when
-        response = self.client.post(self.register_url, data=self.data, content_type="application/json")
+        response = self.client.post(self.register_url, data=self.data)
         # then
         self.assertNotEqual(response.json()['tokens']['access'], "" and response.json()['tokens']['refresh'], "")
 
 
 class TestVerifyEmailView(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
         cls.email_verify_url = reverse('email-verify')
+        cls.client = APIClient()
 
     def setUp(self) -> None:
         self.data = {
@@ -171,32 +188,38 @@ class TestVerifyEmailView(TestCase):
         self.serializer = UserSerializer()
         self.token = self.serializer.get_token(self.user)['access']
 
+    @pytest.mark.django_db
     def test_should_activate_user(self):
         # when
         response = self.client.get(f'{self.email_verify_url}?token={self.token}')
         # then
         self.user.refresh_from_db()
-        self.assertContains(response, 'Successfully activated', status_code=200)
+        self.assertEqual({'message': 'Successfully activated'}, response.data)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.is_active, True)
 
-    @mock.patch.dict(os.environ, {"SECRET_KEY": "secret1"})
+    @pytest.mark.django_db
     def test_should_throw_invalid_token_error_when_bad_sign(self):
         # when
+        settings.SECRET_KEY = 'secret1'
         response = self.client.get(f'{self.email_verify_url}?token={self.token}')
         # then
         self.user.refresh_from_db()
-        self.assertContains(response, "Invalid token", status_code=500)
+        self.assertEqual({'error': "Invalid token"}, response.data)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(self.user.is_active, False)
 
+    @pytest.mark.django_db
     def test_should_throw_activation_expired_when_jwt_expired(self):
         # given
         token = self.token
-        payload = jwt.decode(jwt=token, key=os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+        payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
         payload['exp'] = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
-        token = jwt.encode(payload=payload, key=os.environ.get('SECRET_KEY'), algorithm='HS256')
+        token = jwt.encode(payload=payload, key=settings.SECRET_KEY, algorithm='HS256')
         # when
         response = self.client.get(f'{self.email_verify_url}?token={token}')
         # then
         self.user.refresh_from_db()
         self.assertEqual(self.user.is_active, False)
-        self.assertContains(response, 'Activation Expired', status_code=400)
+        self.assertEqual({'error': 'Activation Expired'}, response.data)
+        self.assertEqual(response.status_code, 400)

@@ -1,0 +1,7 @@
+[coverage:run]
+omit=
+    */env/*
+    */migrations/*
+    */management/*
+    */tests/*
+    manage.py
