@@ -5,11 +5,13 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User, AnonymousUser
 from django.db import close_old_connections
 
+from cpbra_be import settings
+
 
 @database_sync_to_async
 def get_user(token):
     try:
-        payload = jwt.decode(jwt=token, key=os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+        payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
         user = User.objects.get(id=payload['user_id'])
         return user
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError) as e:
