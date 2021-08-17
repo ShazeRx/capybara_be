@@ -85,6 +85,26 @@ class TestRegisterView(TestCase):
         self.assertEqual(response.status_code, 201)
 
     @pytest.mark.django_db
+    def test_user_should_be_inactive(self):
+        # when
+        response = self.client.post(self.register_url, data=self.data)
+        # then
+        self.assertEqual(response.status_code, 201)
+        assert User.objects.all().first().is_active == False
+
+    @pytest.mark.django_db
+    def test_user_should_correct_response(self):
+        # when
+        response = self.client.post(self.register_url, data=self.data)
+        # then
+        user = User.objects.all().first()
+        assert response.data == {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
+
+    @pytest.mark.django_db
     def test_should_throw_400_when_empty_username(self):
         # given
         data = {
@@ -157,18 +177,20 @@ class TestRegisterView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     @pytest.mark.django_db
+    @pytest.mark.skip("Skipped due to removed feature - CPBRA-41")
     def test_should_return_token_set(self):
         # when
         response = self.client.post(self.register_url, data=self.data)
         # then
-        self.assertEqual(len(response.data['tokens']), 2)
+        self.assertEqual(len(response.data), 2)
 
     @pytest.mark.django_db
+    @pytest.mark.skip("Skipped due to removed feature - CPBRA-41")
     def test_should_return_valid_tokens_pairs(self):
         # when
         response = self.client.post(self.register_url, data=self.data)
         # then
-        self.assertNotEqual(response.json()['tokens']['access'], "" and response.json()['tokens']['refresh'], "")
+        self.assertNotEqual(response.json()['access'], "" and response.json()['refresh'], "")
 
 
 class TestVerifyEmailView(TestCase):
