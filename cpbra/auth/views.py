@@ -1,4 +1,3 @@
-import os
 from smtplib import SMTPException
 
 import jwt
@@ -44,9 +43,9 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
-        user_data['tokens'] = serializer.get_token(User.objects.get(id=user_data['id']))
+        tokens = serializer.get_token(User.objects.get(id=user_data['id']))
         try:
-            MailSenderUtil.send_email(request=request, user_data=user_data)
+            MailSenderUtil.send_email(request=request, user_data=user_data, tokens=tokens)
         except SMTPException:
             user = User.objects.get(id=serializer.data['id'])
             user.delete()
