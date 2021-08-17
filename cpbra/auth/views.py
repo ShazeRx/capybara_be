@@ -60,7 +60,7 @@ class VerifyEmailView(GenericAPIView):
     View for verifying an email
     """
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         token = request.GET.get('token')
         try:
             payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
