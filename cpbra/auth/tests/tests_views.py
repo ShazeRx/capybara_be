@@ -191,7 +191,7 @@ class TestVerifyEmailView(TestCase):
     @pytest.mark.django_db
     def test_should_activate_user(self):
         # when
-        response = self.client.get(f'{self.email_verify_url}?token={self.token}')
+        response = self.client.post(f'{self.email_verify_url}?token={self.token}')
         # then
         self.user.refresh_from_db()
         self.assertEqual({'message': 'Successfully activated'}, response.data)
@@ -202,7 +202,7 @@ class TestVerifyEmailView(TestCase):
     def test_should_throw_invalid_token_error_when_bad_sign(self):
         # when
         settings.SECRET_KEY = 'secret1'
-        response = self.client.get(f'{self.email_verify_url}?token={self.token}')
+        response = self.client.post(f'{self.email_verify_url}?token={self.token}')
         # then
         self.user.refresh_from_db()
         self.assertEqual({'error': "Invalid token"}, response.data)
@@ -217,7 +217,7 @@ class TestVerifyEmailView(TestCase):
         payload['exp'] = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
         token = jwt.encode(payload=payload, key=settings.SECRET_KEY, algorithm='HS256')
         # when
-        response = self.client.get(f'{self.email_verify_url}?token={token}')
+        response = self.client.post(f'{self.email_verify_url}?token={token}')
         # then
         self.user.refresh_from_db()
         self.assertEqual(self.user.is_active, False)
