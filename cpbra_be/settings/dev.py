@@ -23,3 +23,4 @@ CHANNEL_LAYERS = {
         },
     },
 }
+AUTH_PASSWORD_VALIDATORS = []
