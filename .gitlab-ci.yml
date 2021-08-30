@@ -1,6 +1,6 @@
 image: node:latest
 before_script:
-  - python -V
+  - python3 -V
   - gem install dpl
 
 stages:
