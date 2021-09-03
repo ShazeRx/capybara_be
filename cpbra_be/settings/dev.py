@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 DEBUG = True
 
-ALLOWED_HOSTS = [os.environ.get('BASE_URL')]
+ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
