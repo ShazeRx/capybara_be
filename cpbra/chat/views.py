@@ -19,13 +19,14 @@ class ChannelView(ModelViewSet):
         """
         Create channel with given users ids
         """
-        user_ids = request.data['users']
-        if len(user_ids) >= 2:
+        user_ids: list = request.data['users']
+        if len(user_ids) >= 1:
+            user_ids.append(self.request.user.id)
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-        return Response({'message': 'users should be at least 2'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': 'user should be at least 1'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def list(self, request, *args, **kwargs) -> Response:
         """
