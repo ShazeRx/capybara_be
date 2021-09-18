@@ -26,7 +26,7 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         serializer = UserSerializer(user)
         if user is not None:
-            return Response(status=200, data=serializer.get_token(user))
+            return Response(status=200, data=serializer.get_user_data_with_token(user))
         return Response(data={"message": "User not activated or does not exist"}, status=status.HTTP_403_FORBIDDEN)
 
 
@@ -51,7 +51,7 @@ class RegisterView(APIView):
             user.delete()
             return Response(data={'message': 'Internal error occurred, your account has not been created'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(data=user_data, status=status.HTTP_201_CREATED)
+        return Response(data={'user': {**user_data}}, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmailView(GenericAPIView):

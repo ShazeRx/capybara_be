@@ -45,11 +45,11 @@ class TestsChannelView(TestCase):
         self.assertEqual(Channel.objects.count(), 1)
 
     @pytest.mark.django_db
-    def test_should_throw_500_when_trying_to_create_channel_with_users_less_2(self):
+    def test_should_throw_500_when_trying_to_create_channel_with_users_less_1(self):
         user = baker.make('User')
         channel_data = {
             "name": "some_name",
-            "users": [user.id]
+            "users": ""
         }
         response = self.client.post(path=self.channel_list_url, data=channel_data)
         self.assertEqual(response.status_code, 500)

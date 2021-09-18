@@ -24,7 +24,7 @@ class TestLoginView(TestCase):
             "password": "world",
             "email": "email"
         }
-        User.objects.create_user(**self.data)
+        self.user = User.objects.create_user(**self.data)
 
     @pytest.mark.django_db
     def test_can_login(self):
@@ -37,6 +37,21 @@ class TestLoginView(TestCase):
         response = self.client.post(self.login_url, data=body)
         # then
         self.assertEqual(response.status_code, 200)
+
+    @pytest.mark.django_db
+    def test_should_return_user_data_with_tokens(self):
+        # given
+        body = {
+            "username": self.data["username"],
+            "password": self.data["password"]
+        }
+        # when
+        response = self.client.post(self.login_url, data=body)
+        # then
+        serializer = UserSerializer(instance=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['user'], serializer.data)
+        self.assertNotEqual(response.json()['token']['access'], "" and response.json()['token']['refresh'], "")
 
     @pytest.mark.django_db
     def test_should_throw_403_when_user_not_exist(self):
@@ -98,11 +113,11 @@ class TestRegisterView(TestCase):
         response = self.client.post(self.register_url, data=self.data)
         # then
         user = User.objects.all().first()
-        assert response.data == {
+        assert response.data == {'user': {
             "id": user.id,
             "username": user.username,
             "email": user.email
-        }
+        }}
 
     @pytest.mark.django_db
     def test_should_throw_400_when_empty_username(self):

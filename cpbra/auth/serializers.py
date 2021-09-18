@@ -7,13 +7,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
+
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'username']
         read_only_fields = ('id',)
         extra_kwargs = {'password': {'write_only': True}, 'email': {'required': True}}
 
-    def validate_email(self, email:str):
+    def validate_email(self, email: str):
         """
         Validates the registration of a new user
         :param data: dict in format
@@ -42,6 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
             'access': str(refresh.access_token),
         }
 
+    def get_user_data_with_token(self, user: User):
+        #TODO: there is surely the better way to do that, maybe per serializer?
+        token = self.get_token(user)
+        return {'user': {**self.data}, 'token': {**token}}
+
     def create(self, validated_data: dict) -> User:
         """
         Creates a new user
@@ -59,6 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
             password=make_password(validated_data['password']),
             is_active=False
         )
+
 
 class UserToken(TokenObtainPairSerializer):
     """
@@ -88,4 +95,3 @@ class UserToken(TokenObtainPairSerializer):
         token['last_name'] = user.last_name
         token['email'] = user.email
         return token
-
