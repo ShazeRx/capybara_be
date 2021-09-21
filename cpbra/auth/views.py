@@ -51,7 +51,7 @@ class RegisterView(APIView):
             user.delete()
             return Response(data={'message': 'Internal error occurred, your account has not been created'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(data={'user': {**user_data}}, status=status.HTTP_201_CREATED)
+        return Response(data=user_data, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmailView(GenericAPIView):

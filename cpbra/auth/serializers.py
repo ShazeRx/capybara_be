@@ -44,9 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def get_user_data_with_token(self, user: User):
-        #TODO: there is surely the better way to do that, maybe per serializer?
         token = self.get_token(user)
-        return {'user': {**self.data}, 'token': {**token}}
+        return {**self.data, **token}
 
     def create(self, validated_data: dict) -> User:
         """
