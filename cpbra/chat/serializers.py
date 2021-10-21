@@ -20,6 +20,7 @@ class ChannelSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    author_username = serializers.ReadOnlyField()
     class Meta:
         model = Message
         fields = "__all__"

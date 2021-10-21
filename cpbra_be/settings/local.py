@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -24,3 +24,4 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
+AUTH_PASSWORD_VALIDATORS = []

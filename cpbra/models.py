@@ -27,3 +27,7 @@ class Message(models.Model):
 
     def __str__(self):
         return f'ID: {self.id}, AUTHOR: {self.author}, BODY: {self.message}, TIME: {self.timestamp}'
+
+    @property
+    def author_username(self):
+        return self.author.username

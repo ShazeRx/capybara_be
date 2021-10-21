@@ -1,3 +1,6 @@
+import json
+import logging
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -6,19 +9,21 @@ from cpbra.models import Channel, Message
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
+    logger = logging.getLogger('chat.consumer')
 
     async def connect(self):
+        self.logger.info('Getting connection from %s', self.scope['user'])
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         channel = await self.get_channel(self.room_name)
         if channel is None:
             await self.accept()
             await self.send_json({"type": "error", "message": "Channel does not exist."})
             await self.close()
+            self.logger.info('Disconnected due to bad channel id %i', self.room_name);
         self.room_group_name = 'chat_%s' % self.room_name
         if self.scope["user"].is_anonymous:
             await self.close()
         else:
-
             await self.channel_layer.group_add(
                 self.room_group_name, self.channel_name
             )
@@ -34,16 +39,20 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         timestamp = event.get('timestamp', None)
         messages_list = await self.fetch_messages_from_db(self.room_name, timestamp)
         serializer = MessageSerializer(messages_list, many=True)
-        await self.send_json(serializer.data)
+        await self.send_json(
+            {"request_id": event['request_id'], "type": "fetch_messages",
+             "body": await self.parse_sync_message(serializer)})
 
     async def new_message(self, event):
-        message_body = event['body']
+        message_body = json.loads(event['body'])['message']
         message = await self.save_message_to_db(message_body)
-        content = {
-            'command': 'new_message',
-            'message': await self.message_to_json(message)
+        content = await self.message_to_json(message)
+        response = {
+            "request_id": event['request_id'], "body": content
         }
-        await self.send_to_channel(content)
+        await self.send_to_channel(
+            response
+        )
 
     commands = {
         'fetch_messages': fetch_messages,
@@ -54,7 +63,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
         Called when received a message (assume other user in channel)
         """
-        await self.commands[content.get('command')](self, content)
+        command = json.loads(content['body'])['type']
+        print(content)
+        await self.commands[command](self, content)
 
     async def send_to_channel(self, message):
         await self.channel_layer.group_send(
@@ -70,17 +81,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         Called when someone has messaged
         """
         message = event['message']
-        await self.send_json({
-            'message': message
-        })
+        await self.send_json(
+             message
+        )
 
     async def message_to_json(self, message: Message):
         return {
             "id": message.id,
-            'author': message.author.username,
+            'author_username': message.author.username,
             'message': message.message,
             'timestamp': str(message.timestamp)
         }
+
+    @database_sync_to_async
+    def parse_sync_message(self, serializer):
+        return serializer.data
 
     @database_sync_to_async
     def get_channel(self, channel_id):
